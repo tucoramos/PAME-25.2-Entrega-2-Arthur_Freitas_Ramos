@@ -146,16 +146,16 @@ function Logar(Id) {
           console.log(sistema.infoAgente(Id));
           break;
         case 2:
-          console.log(sistema.veiculosCadastrados(Id));
+          console.log(sistema.veiculosCadastrados());
           break;
         case 3:
-          console.log(sistema.motoristasCadastrados(Id));
+          console.log(sistema.motoristasCadastrados());
           break;
         case 4:
           registrarInfração();
           break;
         case 5:
-          console.log(sistema.multasCadastradas(Id));
+          console.log(sistema.multasCadastradas());
           break;
         case 6:
           atualizarInfração();
