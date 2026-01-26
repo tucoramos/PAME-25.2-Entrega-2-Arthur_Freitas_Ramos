@@ -20,6 +20,7 @@ class Sistema {
 
     // multas por condutor
     this.multasPorCondutor = new Map(); // idCondutor -> [idMulta]
+    this.veiculosPorCondutor = new Map(); // idCondutor -> [idVeiculo] (not implemented)
 
     // cont p/ ID único
     this.cntAgente = 1;
@@ -76,6 +77,7 @@ class Sistema {
       this.mapLogin.set(email, { senha, id });
       this.idsCondutores.push(id);
       this.multasPorCondutor.set(id, []);
+      this.veiculosPorCondutor.set(id, []);
       this.cntCondutor++;
 
       return id;
@@ -94,6 +96,11 @@ class Sistema {
 
       this.mapIds.set(id, { tipo: "veiculo", obj: veiculo });
       this.idsVeiculos.push(id);
+
+      const lista = this.veiculosPorCondutor.get(cliente) ?? [];
+      lista.push(id);
+      this.veiculosPorCondutor.set(cliente, lista);
+
       this.cntVeiculo++;
 
       return id;
@@ -139,29 +146,7 @@ class Sistema {
 
       const { obj: multa } = this._getRegistro(multaId);
 
-      multa.setStatus(status);
-
-      return true;
-    } catch (err) {
-      throw new Error(err.message);
-    }
-  }
-
-  pagarMulta(multaId) {
-    // busca a multa por ID, caso ela não exista da um erro,caso exista muda o status dela para paga
-    try {
-      this._exigirId(multaId);
-      if (this.tipoId(multaId) !== "multa")
-        throw new Error("ID não é de multa.");
-
-      const { obj: multa } = this._getRegistro(multaId);
-
-      const statusAtual = multa.status;
-      if (statusAtual === "cancelada")
-        throw new Error("Multa cancelada não pode ser paga.");
-      if (statusAtual === "paga") throw new Error("Multa já está paga.");
-
-      multa.setStatus("paga");
+      multa.status = status;
 
       return true;
     } catch (err) {
@@ -222,13 +207,37 @@ class Sistema {
         throw new Error("ID não é de condutor.");
       const { obj: c } = this._getRegistro(Id);
 
+      const linhas = [];
+      const ids = this.veiculosPorCondutor.get(Id) ?? [];
+      if (ids.length === 0)
+        linhas.push("Nenhum veículo registrado para este condutor.");
+
+      for (let i = 0; i < ids.length; i++) {
+        const idV = ids[i];
+        const { obj: v } = this._getRegistro(idV);
+        linhas.push(
+          "ID: " +
+            v.id +
+            " | Placa: " +
+            v.placa +
+            " | Modelo: " +
+            v.modelo +
+            " | Marca: " +
+            v.marca +
+            " | Cor: " +
+            v.cor +
+            "\n",
+        );
+      }
+
       return (
         "--- PERFIL CONDUTOR ---\n" +
         `ID: ${c.id}\n` +
         `Nome: ${c.nome}\n` +
         `CPF: ${c.cpf}\n` +
         `Nascimento: ${c.nascimento}\n` +
-        `Email: ${c.email}\n`
+        `Email: ${c.email}\n` +
+        `Veículos: ${linhas.join("")}\n`
       );
     } catch (err) {
       throw new Error(err.message);

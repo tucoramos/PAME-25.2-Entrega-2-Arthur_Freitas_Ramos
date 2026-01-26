@@ -43,6 +43,7 @@ while (sair === false) {
             let senha = requisicao.question("Senha: ");
             sistema.criarAgente(nome, cpf, matr, email, senha);
             valido = true;
+            console.log("");
           } catch (err) {
             console.log(
               "Erro ao criar agente de trânsito: ",
@@ -128,7 +129,7 @@ function Logar(Id) {
     while (sair === false) {
       console.log(
         "\n----Menu de Agente (" +
-          sistema.nomeUsusario(Id) +
+          sistema.nomeUsuario(Id) +
           ")----\n" +
           "Digite o número correspondente a ação desejada\n" +
           "1)Visualizar informações do perfil.\n" +
@@ -194,7 +195,7 @@ function pagarMulta() {
     try {
       console.log("----Pagamento de Infração----");
       let multa = requisicao.question("Id da multa que deseja pagar: ");
-      sistema.pagarMulta(multa);
+      sistema.atualizarMulta(multa, "paga");
       valido = true;
     } catch (err) {
       console.log("Erro ao pagar multa: ", err.message, "\n");
@@ -207,7 +208,7 @@ function recorrerMulta() {
     try {
       console.log("----Recorrência de Infração----");
       let multa = requisicao.question("Id da multa que deseja recorrer: ");
-      sistema.recorrerMulta(multa);
+      sistema.atualizarMulta(multa, "recorrida");
       valido = true;
     } catch (err) {
       console.log("Erro ao recorrer multa: ", err.message, "\n");
@@ -223,7 +224,7 @@ function registrarInfração() {
       let cliente = requisicao.question("Id do cliente: ");
       let tipo = requisicao.question("tipo da infração: ");
       let valor = requisicao.question("valor da infração: ");
-      let data = requisicao.question("data: ");
+      let data = requisicao.question("data(DD-MM-AAAA): ");
       sistema.addMulta(cliente, tipo, valor, data);
       valido = true;
     } catch (err) {
