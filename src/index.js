@@ -155,7 +155,8 @@ function Logar(Id) {
           "6) Registrar uma nova infração para um condutor.\n" +
           "7) Listagem geral das multas.\n" +
           "8) Atualizar a situação da infração.\n" +
-          "9) Sair",
+          "9) Relatório de multas\n" +
+          "10) Sair",
       );
       let escolha = Number(requisicao.question("Escolha: "));
       console.log("");
@@ -185,6 +186,9 @@ function Logar(Id) {
           atualizarInfração();
           break;
         case 9:
+          relatorioMultas();
+          break;
+        case 10:
           console.log("Voltando para o menu principal...", "\n");
           sair = true;
           break;
@@ -369,5 +373,16 @@ function atualizarInfração() {
     console.log("Multa atualizada com sucesso!");
   } catch (err) {
     console.log("Erro ao atualizar multa:", err.message, "\n");
+  }
+}
+
+function relatorioMultas() {
+  try {
+    console.log("----Relatório de Multas----");
+    let inicio = requisicao.question("Data inicial(DD-MM-AAAA): ");
+    let fim = requisicao.question("Data final(DD-MM-AAAA): ");
+    console.log(sistema.gerarRelatorioMultas(inicio, fim));
+  } catch (err) {
+    console.log("Erro ao gerar relatório: ", err.message, "\n");
   }
 }

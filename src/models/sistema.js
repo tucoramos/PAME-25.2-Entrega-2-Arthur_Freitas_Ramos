@@ -46,6 +46,54 @@ class Sistema {
     return this.mapIds.get(id); // { tipo, obj }
   }
 
+  _valorData(dataStr) {
+    // converte "DD-MM-AAAA" para um valor numérico AAAAMMDD para facilitar comparações
+    const partes = dataStr.split("-");
+    return Number(partes[2] + partes[1].padStart(2, "0") + partes[0].padStart(2, "0"));
+  }
+
+  _isDate(str) {
+    // 1) formato exato DD-MM-AAAA
+    const regex = /^(\d{2})-(\d{2})-(\d{4})$/;
+    const match = str.match(regex);
+
+    if (!match) return false;
+
+    const dia = Number(match[1]);
+    const mes = Number(match[2]);
+    const ano = Number(match[3]);
+
+    // 2) mês válido
+    if (mes < 1 || mes > 12) return false;
+
+    // 3) dias por mês
+    const diasNoMes = [
+      31, // jan
+      28, // fev
+      31, // mar
+      30, // abr
+      31, // mai
+      30, // jun
+      31, // jul
+      31, // ago
+      30, // set
+      31, // out
+      30, // nov
+      31, // dez
+    ];
+
+    // 4) ano bissexto
+    const bissexto = (ano % 4 === 0 && ano % 100 !== 0) || ano % 400 === 0;
+
+    if (bissexto && mes === 2) {
+      if (dia < 1 || dia > 29) return false;
+    } else {
+      if (dia < 1 || dia > diasNoMes[mes - 1]) return false;
+    }
+
+    return true;
+  }
+
   // Criação de usuários
   criarAgente(nome, cpf, matr, email, senha) {
     //gera um id para o agente tenta criar o agente caso resulte em erro chama um erro com a msm msg
@@ -549,6 +597,53 @@ class Sistema {
     } catch (err) {
       throw new Error(err.message);
     }
+  }
+}
+
+gerarRelatorioMultas(inicio, fim) {
+  try {
+    if (!this._isDate(inicio)) throw new Error("Data de início inválida.");
+    if (!this._isDate(fim)) throw new Error("Data de fim inválida.");
+    if (this.idsMultas.length === 0) return "Nenhuma multa cadastrada.";
+
+    const linhas = [];
+    let valorTotal = 0;
+    let valorCobrado = 0;
+    for (let i = 0; i < this.idsMultas.length; i++) {
+      const idM = this.idsMultas[i];
+      const { obj: m } = this._getRegistro(idM);
+      if (_valorData(m.data) >= _valorData(inicio) && _valorData(m.data) <= _valorData(fim)) {
+        linhas.push(
+          "ID: " +
+            m.id +
+            " | Condutor: " +
+            m.idCliente +
+            " | Tipo: " +
+            m.tipo +
+            " | Valor: " +
+            m.valor +
+            " | Data: " +
+            m.data +
+            " | Status: " +
+            m.status,
+        );
+        if (m.status === "paga"){
+          valorTotal += Number(m.valor);
+        }
+        valorCobrado += Number(m.valor);
+      }
+    }
+
+    return (
+      `--- RELATÓRIO DE MULTAS ---\n` +
+      `Período: ${inicio} a ${fim}\n` +
+      `Valor Total Cobrado: R$ ${valorCobrado.toFixed(2)}\n` +
+      `Valor Total Arrecadado: R$ ${valorTotal.toFixed(2)}\n` +
+      `Total de Multas: ${linhas.length}\n` +
+      linhas.join("\n")
+    );
+  } catch (err) {
+    throw new Error(err.message);
   }
 }
 
