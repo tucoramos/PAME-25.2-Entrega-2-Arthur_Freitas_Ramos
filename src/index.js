@@ -6,11 +6,12 @@ let sistema = new Sistema();
 let sair = false;
 while (sair === false) {
   /* Opcoes iniciais para o usuario */
+  console.log("----Menu Inicial----");
   console.log(
-    "Digite o número correspondente a ação desejada\n" +
-      "1)Fazer login.\n" +
-      "2)Fazer cadastro.\n" +
-      "3)Sair do sistema.",
+    "1) Fazer login.\n" +
+      "2) Fazer cadastro.\n" +
+      "3) Sair do sistema.\n" +
+      "Digite o número correspondente a ação desejada",
   );
   let escolha = Number(requisicao.question("Escolha: "));
   console.log("");
@@ -96,12 +97,13 @@ function Logar(Id) {
           sistema.nomeUsuario(Id) +
           ")----\n" +
           "Digite o número correspondente a ação desejada\n" +
-          "1)Visualizar informações pessoais.\n" +
-          "2)Consultar histórico pessoal de infrações.\n" +
-          "3)Cadastrar um novo veículo.\n" +
-          "4)Pagar multa.\n" +
-          "5)Recorrer multa.\n" +
-          "6)Sair",
+          "1) Visualizar informações pessoais.\n" +
+          "2) Editar informações pessoais.\n" +
+          "3) Consultar histórico pessoal de infrações.\n" +
+          "4) Cadastrar um novo veículo.\n" +
+          "5) Pagar multa.\n" +
+          "6) Recorrer multa.\n" +
+          "7) Sair",
       );
       let escolha = Number(requisicao.question("Escolha: "));
       console.log("");
@@ -110,18 +112,21 @@ function Logar(Id) {
           console.log(sistema.infoCondutor(Id));
           break;
         case 2:
-          console.log(sistema.infraCondutor(Id));
+          editarCondutor(Id);
           break;
         case 3:
-          cadastrarVeiculo(Id);
+          console.log(sistema.infraCondutor(Id));
           break;
         case 4:
-          pagarMulta(Id);
+          cadastrarVeiculo(Id);
           break;
         case 5:
-          recorrerMulta(Id);
+          pagarMulta(Id);
           break;
         case 6:
+          recorrerMulta(Id);
+          break;
+        case 7:
           console.log("Voltando para o menu principal...", "\n");
           sair = true;
           break;
@@ -137,13 +142,14 @@ function Logar(Id) {
           sistema.nomeUsuario(Id) +
           ")----\n" +
           "Digite o número correspondente a ação desejada\n" +
-          "1)Visualizar informações do perfil.\n" +
-          "2)Consultar veículos cadastrados.\n" +
-          "3)Consultar base de motoristas.\n" +
-          "4)Registrar uma nova infração para um condutor.\n" +
-          "5)Listagem geral das multas.\n" +
-          "6)Atualizar a situação da infração.\n" +
-          "7)Sair",
+          "1) Visualizar informações do perfil.\n" +
+          "2) Editar informações pessoais.\n" +
+          "3) Consultar veículos cadastrados.\n" +
+          "4) Consultar base de motoristas.\n" +
+          "5) Registrar uma nova infração para um condutor.\n" +
+          "6) Listagem geral das multas.\n" +
+          "7) Atualizar a situação da infração.\n" +
+          "8) Sair",
       );
       let escolha = Number(requisicao.question("Escolha: "));
       console.log("");
@@ -152,21 +158,24 @@ function Logar(Id) {
           console.log(sistema.infoAgente(Id));
           break;
         case 2:
-          console.log(sistema.veiculosCadastrados());
+          editarAgente(Id);
           break;
         case 3:
-          console.log(sistema.motoristasCadastrados());
+          console.log(sistema.veiculosCadastrados());
           break;
         case 4:
-          registrarInfração();
+          console.log(sistema.motoristasCadastrados());
           break;
         case 5:
-          console.log(sistema.multasCadastradas());
+          registrarInfração();
           break;
         case 6:
-          atualizarInfração();
+          console.log(sistema.multasCadastradas());
           break;
         case 7:
+          atualizarInfração();
+          break;
+        case 8:
           console.log("Voltando para o menu principal...", "\n");
           sair = true;
           break;
@@ -174,6 +183,51 @@ function Logar(Id) {
           console.log("Opção invalida, tente novamente.", "\n");
       }
     }
+  }
+}
+
+function editarCondutor(Id) {
+  try {
+    console.log(
+      "----Edição de Condutor----\n" +
+        "1) Nome\n" +
+        "2) CPF\n" +
+        "3) Data de nascimento\n" +
+        "4) Senha",
+    );
+
+    let mudança = Number(requisicao.question("O que deseja editar? "));
+    let novo = requisicao.question("Novo valor: ");
+    if (mudança >= 1 && mudança <= 4) {
+      let possiveisMud = ["nome", "cpf", "nascimento", "senha"];
+      mudança = possiveisMud[mudança - 1];
+      sistema.editarCondutor(Id, mudança, novo);
+      console.log("Condutor editado com sucesso!");
+    } else {
+      console.log("Opção inválida.");
+    }
+  } catch (err) {
+    console.log("Erro ao editar condutor: ", err.message, "\n");
+  }
+}
+
+function editarAgente(Id) {
+  try {
+    console.log(
+      "----Edição de Agente de Trânsito----\n" +
+        "1) Nome\n" +
+        "2) CPF\n" +
+        "3) Número de matrícula\n" +
+        "4) Senha",
+    );
+    let mudança = Number(requisicao.question("O que deseja editar? "));
+    let novo = requisicao.question("Novo valor: ");
+    let possiveisMud = ["nome", "cpf", "matricula", "senha"];
+    mudança = possiveisMud[mudança - 1];
+    sistema.editarAgente(Id, mudança, novo);
+    console.log("Agente de trânsito editado com sucesso!");
+  } catch (err) {
+    console.log("Erro ao editar agente de trânsito: ", err.message, "\n");
   }
 }
 

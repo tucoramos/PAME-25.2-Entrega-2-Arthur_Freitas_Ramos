@@ -86,6 +86,71 @@ class Sistema {
     }
   }
 
+  editarCondutor(id, mudança, novoValor) {
+    try {
+      this._exigirId(id);
+      if (this.tipoId(id) !== "condutor") {
+        throw new Error("ID não é de condutor.");
+      }
+      const { obj: condutor } = this._getRegistro(id);
+
+      switch (mudança) {
+        case "nome":
+          condutor.nome = novoValor;
+          break;
+        case "cpf":
+          condutor.cpf = novoValor;
+          break;
+        case "nascimento":
+          condutor.nascimento = novoValor;
+          break;
+        case "email":
+          throw new Error("Nao é possível alterar o email.");
+          break;
+        case "senha":
+          condutor.senha = novoValor;
+          break;
+        default:
+          throw new Error("Campo nao existente para edição.");
+      }
+      return true;
+    } catch (err) {
+      throw new Error(err.message);
+    }
+  }
+  editarAgente(id, mudança, novoValor) {
+    try {
+      this._exigirId(id);
+      if (this.tipoId(id) !== "agente") {
+        throw new Error("ID não é de agente.");
+      }
+      const { obj: agente } = this._getRegistro(id);
+
+      switch (mudança) {
+        case "nome":
+          agente.nome = novoValor;
+          break;
+        case "cpf":
+          agente.cpf = novoValor;
+          break;
+        case "matricula":
+          agente.matricula = novoValor;
+          break;
+        case "email":
+          throw new Error("Nao é possível alterar o email.");
+          break;
+        case "senha":
+          agente.senha = novoValor;
+          break;
+        default:
+          throw new Error("Campo nao existente para edição.");
+      }
+      return true;
+    } catch (err) {
+      throw new Error(err.message);
+    }
+  }
+
   // Criação de Veículos / Multas
   criarCarro(cliente, placa, modelo, marca, cor) {
     //tenta criar o carro caso resulte em erro chama um erro com a msm msg
