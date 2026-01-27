@@ -49,7 +49,9 @@ class Sistema {
   _valorData(dataStr) {
     // converte "DD-MM-AAAA" para um valor numérico AAAAMMDD para facilitar comparações
     const partes = dataStr.split("-");
-    return Number(partes[2] + partes[1].padStart(2, "0") + partes[0].padStart(2, "0"));
+    return Number(
+      partes[2] + partes[1].padStart(2, "0") + partes[0].padStart(2, "0"),
+    );
   }
 
   _isDate(str) {
@@ -263,7 +265,7 @@ class Sistema {
         throw new Error("É necessário fornecer o ID ou a placa do veículo.");
       }
 
-      if (veiculo.idCliente !== cliente) {
+      if (this.veiculosPorCondutor.get(cliente).includes(idVeiculo) === false) {
         throw new Error("Veículo não pertence ao condutor.");
       }
 
@@ -406,7 +408,7 @@ class Sistema {
         `CPF: ${c.cpf}\n` +
         `Nascimento: ${c.nascimento}\n` +
         `Email: ${c.email}\n` +
-        `Veículos: ${this.VeiculosCondutor(Id)}\n`
+        `Veículos: ${this.veiculosCondutor(Id)}\n`
       );
     } catch (err) {
       throw new Error(err.message);
@@ -598,52 +600,55 @@ class Sistema {
       throw new Error(err.message);
     }
   }
-}
 
-gerarRelatorioMultas(inicio, fim) {
-  try {
-    if (!this._isDate(inicio)) throw new Error("Data de início inválida.");
-    if (!this._isDate(fim)) throw new Error("Data de fim inválida.");
-    if (this.idsMultas.length === 0) return "Nenhuma multa cadastrada.";
+  gerarRelatorioMultas(inicio, fim) {
+    try {
+      if (!this._isDate(inicio)) throw new Error("Data de início inválida.");
+      if (!this._isDate(fim)) throw new Error("Data de fim inválida.");
+      if (this.idsMultas.length === 0) return "Nenhuma multa cadastrada.";
 
-    const linhas = [];
-    let valorTotal = 0;
-    let valorCobrado = 0;
-    for (let i = 0; i < this.idsMultas.length; i++) {
-      const idM = this.idsMultas[i];
-      const { obj: m } = this._getRegistro(idM);
-      if (_valorData(m.data) >= _valorData(inicio) && _valorData(m.data) <= _valorData(fim)) {
-        linhas.push(
-          "ID: " +
-            m.id +
-            " | Condutor: " +
-            m.idCliente +
-            " | Tipo: " +
-            m.tipo +
-            " | Valor: " +
-            m.valor +
-            " | Data: " +
-            m.data +
-            " | Status: " +
-            m.status,
-        );
-        if (m.status === "paga"){
-          valorTotal += Number(m.valor);
+      const linhas = [];
+      let valorTotal = 0;
+      let valorCobrado = 0;
+      for (let i = 0; i < this.idsMultas.length; i++) {
+        const idM = this.idsMultas[i];
+        const { obj: m } = this._getRegistro(idM);
+        if (
+          this._valorData(m.data) >= this._valorData(inicio) &&
+          this._valorData(m.data) <= this._valorData(fim)
+        ) {
+          linhas.push(
+            "ID: " +
+              m.id +
+              " | Condutor: " +
+              m.idCliente +
+              " | Tipo: " +
+              m.tipo +
+              " | Valor: " +
+              m.valor +
+              " | Data: " +
+              m.data +
+              " | Status: " +
+              m.status,
+          );
+          if (m.status === "paga") {
+            valorTotal += Number(m.valor);
+          }
+          valorCobrado += Number(m.valor);
         }
-        valorCobrado += Number(m.valor);
       }
-    }
 
-    return (
-      `--- RELATÓRIO DE MULTAS ---\n` +
-      `Período: ${inicio} a ${fim}\n` +
-      `Valor Total Cobrado: R$ ${valorCobrado.toFixed(2)}\n` +
-      `Valor Total Arrecadado: R$ ${valorTotal.toFixed(2)}\n` +
-      `Total de Multas: ${linhas.length}\n` +
-      linhas.join("\n")
-    );
-  } catch (err) {
-    throw new Error(err.message);
+      return (
+        `--- RELATÓRIO DE MULTAS ---\n` +
+        `Período: ${inicio} a ${fim}\n` +
+        `Valor Total Cobrado: R$ ${valorCobrado.toFixed(2)}\n` +
+        `Valor Total Arrecadado: R$ ${valorTotal.toFixed(2)}\n` +
+        `Total de Multas: ${linhas.length}\n` +
+        linhas.join("\n")
+      );
+    } catch (err) {
+      throw new Error(err.message);
+    }
   }
 }
 
