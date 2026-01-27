@@ -6,21 +6,24 @@ const Condutor = require("./condutor");
 
 class Sistema {
   constructor() {
-    // id -> { tipo, obj }
-    this.mapIds = new Map();
+    // map principal de IDs
+    this.mapIds = new Map(); // id -> { tipo, obj }
 
-    // email -> { senha, id }
-    this.mapLogin = new Map();
+    // email
+    this.mapLogin = new Map(); // email -> { senha, id }
+
+    // condutor
+    this.multasPorCondutor = new Map(); // idCondutor -> [idMulta]
+    this.veiculosPorCondutor = new Map(); // idCondutor -> [idVeiculo]
+
+    // veículos
+    this.veiculoPorPlaca = new Map(); // placa -> idVeiculo (not implemented)
 
     // índices para listagens
     this.idsAgentes = [];
     this.idsCondutores = [];
     this.idsMultas = [];
     this.idsVeiculos = [];
-
-    // multas por condutor
-    this.multasPorCondutor = new Map(); // idCondutor -> [idMulta]
-    this.veiculosPorCondutor = new Map(); // idCondutor -> [idVeiculo] (not implemented)
 
     // cont p/ ID único
     this.cntAgente = 1;
@@ -118,6 +121,7 @@ class Sistema {
       throw new Error(err.message);
     }
   }
+
   editarAgente(id, mudança, novoValor) {
     try {
       this._exigirId(id);
@@ -161,10 +165,16 @@ class Sistema {
       }
       const id = this._gerarId("VEI", this.cntVeiculo);
 
+      if (this.veiculoPorPlaca.has(placa)) {
+        throw new Error("Placa já cadastrada no sistema.");
+      }
+
       const veiculo = new Veiculo(id, placa, modelo, marca, cor);
 
       this.mapIds.set(id, { tipo: "veiculo", obj: veiculo });
       this.idsVeiculos.push(id);
+
+      this.veiculoPorPlaca.set(placa, id);
 
       const lista = this.veiculosPorCondutor.get(cliente) ?? [];
       lista.push(id);
@@ -173,6 +183,52 @@ class Sistema {
       this.cntVeiculo++;
 
       return id;
+    } catch (err) {
+      throw new Error(err.message);
+    }
+  }
+
+  excluirCarro(cliente, idVeiculo = null, placa = null) {
+    // checa se o id do cliente é de condutor
+    // prioridade de busca é pelo id do veiculo
+    // checa se o veiculo pertence ao condutor
+    // tenta excluir o veiculo caso resulte em erro chama um erro com a msm msg
+    try {
+      this._exigirId(cliente);
+      if (this.tipoId(cliente) !== "condutor") {
+        throw new Error("O ID informado não pertence a um condutor.");
+      }
+
+      let veiculo;
+      if (idVeiculo !== null && idVeiculo !== undefined) {
+        this._exigirId(idVeiculo);
+        const { obj: v } = this._getRegistro(idVeiculo);
+        veiculo = v;
+      } else if (placa !== null && placa !== undefined) {
+        if (!this.veiculoPorPlaca.has(placa)) {
+          throw new Error("Veículo não encontrado.");
+        }
+        idVeiculo = this.veiculoPorPlaca.get(placa);
+        const { obj: v } = this._getRegistro(idVeiculo);
+        veiculo = v;
+      } else {
+        throw new Error("É necessário fornecer o ID ou a placa do veículo.");
+      }
+
+      if (veiculo.idCliente !== cliente) {
+        throw new Error("Veículo não pertence ao condutor.");
+      }
+
+      this.mapIds.delete(idVeiculo);
+      this.idsVeiculos = this.idsVeiculos.filter((id) => id !== idVeiculo);
+      this.veiculoPorPlaca.delete(veiculo.placa);
+
+      const lista = this.veiculosPorCondutor.get(cliente) ?? [];
+      const index = lista.indexOf(idVeiculo);
+      if (index > -1) {
+        lista.splice(index, 1);
+        this.veiculosPorCondutor.set(cliente, lista);
+      }
     } catch (err) {
       throw new Error(err.message);
     }
@@ -289,34 +345,11 @@ class Sistema {
   }
 
   infoCondutor(Id) {
-    // retorna uma string com as info do condutor
+    // retorna uma string com as info do condutor e seus veiculos
     try {
       if (this.tipoId(Id) !== "condutor")
         throw new Error("ID não é de condutor.");
       const { obj: c } = this._getRegistro(Id);
-
-      const linhas = [];
-      const ids = this.veiculosPorCondutor.get(Id) ?? [];
-      if (ids.length === 0)
-        linhas.push("Nenhum veículo registrado para este condutor.");
-
-      for (let i = 0; i < ids.length; i++) {
-        const idV = ids[i];
-        const { obj: v } = this._getRegistro(idV);
-        linhas.push(
-          "ID: " +
-            v.id +
-            " | Placa: " +
-            v.placa +
-            " | Modelo: " +
-            v.modelo +
-            " | Marca: " +
-            v.marca +
-            " | Cor: " +
-            v.cor +
-            "\n",
-        );
-      }
 
       return (
         "--- PERFIL CONDUTOR ---\n" +
@@ -325,7 +358,7 @@ class Sistema {
         `CPF: ${c.cpf}\n` +
         `Nascimento: ${c.nascimento}\n` +
         `Email: ${c.email}\n` +
-        `Veículos: ${linhas.join("")}\n`
+        `Veículos: ${this.VeiculosCondutor(Id)}\n`
       );
     } catch (err) {
       throw new Error(err.message);
@@ -394,6 +427,60 @@ class Sistema {
       return (
         `--- VEÍCULOS CADASTRADOS (${this.idsVeiculos.length}) ---\n` +
         linhas.join("\n")
+      );
+    } catch (err) {
+      throw new Error(err.message);
+    }
+  }
+
+  veiculosCondutor(Id) {
+    // retorna uma string com os veiculos do condutor
+    try {
+      if (this.tipoId(Id) !== "condutor")
+        throw new Error("ID não é de condutor.");
+      const linhas = [];
+      const ids = this.veiculosPorCondutor.get(Id) ?? [];
+      if (ids.length === 0)
+        linhas.push("Nenhum veículo registrado para este condutor.");
+
+      for (let i = 0; i < ids.length; i++) {
+        const idV = ids[i];
+        const { obj: v } = this._getRegistro(idV);
+        linhas.push(
+          "ID: " +
+            v.id +
+            " | Placa: " +
+            v.placa +
+            " | Modelo: " +
+            v.modelo +
+            " | Marca: " +
+            v.marca +
+            " | Cor: " +
+            v.cor +
+            "\n",
+        );
+      }
+      return linhas.join("");
+    } catch (err) {
+      throw new Error(err.message);
+    }
+  }
+
+  buscarVeiculoPorPlaca(placa) {
+    // retorna uma string com as info do veiculo correspondente a placa
+    try {
+      if (!this.veiculoPorPlaca.has(placa)) {
+        return "Nenhum veículo encontrado com a placa informada.";
+      }
+      const id = this.veiculoPorPlaca.get(placa);
+      const { obj: v } = this._getRegistro(id);
+      return (
+        "--- VEÍCULO ENCONTRADO ---\n" +
+        `ID: ${v.id}` +
+        ` | Placa: ${v.placa}` +
+        ` | Modelo: ${v.modelo}` +
+        ` | Marca: ${v.marca}` +
+        ` | Cor: ${v.cor}\n`
       );
     } catch (err) {
       throw new Error(err.message);

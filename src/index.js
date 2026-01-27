@@ -101,9 +101,10 @@ function Logar(Id) {
           "2) Editar informações pessoais.\n" +
           "3) Consultar histórico pessoal de infrações.\n" +
           "4) Cadastrar um novo veículo.\n" +
-          "5) Pagar multa.\n" +
-          "6) Recorrer multa.\n" +
-          "7) Sair",
+          "5) Excluir veículo cadastrado.\n" +
+          "6) Pagar multa.\n" +
+          "7) Recorrer multa.\n" +
+          "8) Sair",
       );
       let escolha = Number(requisicao.question("Escolha: "));
       console.log("");
@@ -121,12 +122,16 @@ function Logar(Id) {
           cadastrarVeiculo(Id);
           break;
         case 5:
-          pagarMulta(Id);
+          console.log(sistema.veiculosCondutor(Id));
+          excluirVeiculo(Id);
           break;
         case 6:
-          recorrerMulta(Id);
+          pagarMulta(Id);
           break;
         case 7:
+          recorrerMulta(Id);
+          break;
+        case 8:
           console.log("Voltando para o menu principal...", "\n");
           sair = true;
           break;
@@ -145,11 +150,12 @@ function Logar(Id) {
           "1) Visualizar informações do perfil.\n" +
           "2) Editar informações pessoais.\n" +
           "3) Consultar veículos cadastrados.\n" +
-          "4) Consultar base de motoristas.\n" +
-          "5) Registrar uma nova infração para um condutor.\n" +
-          "6) Listagem geral das multas.\n" +
-          "7) Atualizar a situação da infração.\n" +
-          "8) Sair",
+          "4) Buscar veículos por placa\n" +
+          "5) Consultar base de motoristas.\n" +
+          "6) Registrar uma nova infração para um condutor.\n" +
+          "7) Listagem geral das multas.\n" +
+          "8) Atualizar a situação da infração.\n" +
+          "9) Sair",
       );
       let escolha = Number(requisicao.question("Escolha: "));
       console.log("");
@@ -164,18 +170,21 @@ function Logar(Id) {
           console.log(sistema.veiculosCadastrados());
           break;
         case 4:
-          console.log(sistema.motoristasCadastrados());
+          BuscarVeiculoPorPlaca();
           break;
         case 5:
-          registrarInfração();
+          console.log(sistema.motoristasCadastrados());
           break;
         case 6:
-          console.log(sistema.multasCadastradas());
+          registrarInfração();
           break;
         case 7:
-          atualizarInfração();
+          console.log(sistema.multasCadastradas());
           break;
         case 8:
+          atualizarInfração();
+          break;
+        case 9:
           console.log("Voltando para o menu principal...", "\n");
           sair = true;
           break;
@@ -242,6 +251,45 @@ function cadastrarVeiculo(Id) {
     console.log("Veículo cadastrado com sucesso!");
   } catch (err) {
     console.log("Erro ao registrar veiculo: ", err.message, "\n");
+  }
+}
+
+function excluirVeiculo(Id) {
+  try {
+    console.log(
+      "----Exclusão de Veículo----\n" +
+        "De que forma deseja buscar o veiculo?\n" +
+        "\n1) Placa\n2) ID",
+    );
+
+    let busca = Number(requisicao.question("Escolha: "));
+    if (busca === 1) {
+      let placa = requisicao.question(
+        "Digite a placa do veículo que deseja excluir: ",
+      );
+      sistema.excluirCarro(Id, null, placa);
+    } else if (busca === 2) {
+      let idV = requisicao.question(
+        "Digite o ID do veículo que deseja excluir: ",
+      );
+      sistema.excluirCarro(Id, idV, null);
+    } else {
+      console.log("Opção inválida.");
+      return;
+    }
+    console.log("Veículo excluído com sucesso!");
+  } catch (err) {
+    console.log("Erro ao excluir veículo: ", err.message, "\n");
+  }
+}
+
+function BuscarVeiculoPorPlaca() {
+  try {
+    console.log("----Busca de Veículo por Placa----");
+    let placa = requisicao.question("Digite a placa do veículo: ");
+    console.log(sistema.buscarVeiculoPorPlaca(placa));
+  } catch (err) {
+    console.log("Erro ao buscar veículo: ", err.message, "\n");
   }
 }
 
