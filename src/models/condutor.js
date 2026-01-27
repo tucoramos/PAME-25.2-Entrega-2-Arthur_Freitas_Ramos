@@ -26,6 +26,10 @@ class Condutor extends Usuario {
     return this._nascimento;
   }
 
+  get id() {
+    return this._id;
+  }
+
   // Validações auxiliares
   _isDate(str) {
     // 1) formato exato DD-MM-AAAA

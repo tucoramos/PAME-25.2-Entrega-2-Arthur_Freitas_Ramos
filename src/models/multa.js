@@ -44,6 +44,7 @@ class Multa {
 
   set status(v) {
     if (!this._statusValido(v)) throw new Error("Status inválido.");
+    if (this._status === v) return;
     if (
       ["paga", "cancelada", "recorrida"].includes(v) &&
       this._status === "pendente"
@@ -56,7 +57,6 @@ class Multa {
         "Status só pode ser alterado de 'pendente' para 'paga', 'cancelada' ou 'recorrida'.",
       );
     }
-    this._status = v;
   }
 
   // Getters

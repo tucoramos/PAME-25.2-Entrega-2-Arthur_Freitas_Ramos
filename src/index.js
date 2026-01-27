@@ -43,6 +43,7 @@ while (sair === false) {
             let senha = requisicao.question("Senha: ");
             sistema.criarAgente(nome, cpf, matr, email, senha);
             valido = true;
+            console.log("Agente de trânsito criado com sucesso!");
             console.log("");
           } catch (err) {
             console.log(
@@ -60,11 +61,15 @@ while (sair === false) {
             console.log("----Registro de condutor----");
             let nome = requisicao.question("Nome: ");
             let cpf = requisicao.question("CPF: ");
-            let nascimento = requisicao.question("Data de nascimento: ");
+            let nascimento = requisicao.question(
+              "Data de nascimento(DD-MM-AAAA): ",
+            );
             let email = requisicao.question("Email: ");
             let senha = requisicao.question("Senha: ");
             sistema.criarCondutor(nome, cpf, nascimento, email, senha);
             valido = true;
+            console.log("Condutor criado com sucesso!");
+            console.log("");
           } catch (err) {
             console.log("Erro ao criar condutor: ", err.message, "\n");
           }
@@ -108,13 +113,13 @@ function Logar(Id) {
           console.log(sistema.infraCondutor(Id));
           break;
         case 3:
-          cadastrarVeiculo();
+          cadastrarVeiculo(Id);
           break;
         case 4:
-          pagarMulta();
+          pagarMulta(Id);
           break;
         case 5:
-          recorrerMulta();
+          recorrerMulta(Id);
           break;
         case 6:
           console.log("Voltando para o menu principal...", "\n");
@@ -172,109 +177,95 @@ function Logar(Id) {
   }
 }
 
-function cadastrarVeiculo() {
-  let valido = false;
-  while (valido === false) {
-    try {
-      console.log("----Cadastro de Veículo----");
-      let placa = requisicao.question("Placa: ");
-      let modelo = requisicao.question("Modelo: ");
-      let marca = requisicao.question("Marca: ");
-      let cor = requisicao.question("Cor: ");
-      sistema.criarCarro(placa, modelo, marca, cor);
-      valido = true;
-    } catch (err) {
-      console.log("Erro ao registrar veiculo: ", err.message, "\n");
-    }
+function cadastrarVeiculo(Id) {
+  try {
+    console.log("----Cadastro de Veículo----");
+    let placa = requisicao.question("Placa: ");
+    let modelo = requisicao.question("Modelo: ");
+    let marca = requisicao.question("Marca: ");
+    let cor = requisicao.question("Cor: ");
+    sistema.criarCarro(Id, placa, modelo, marca, cor);
+    console.log("Veículo cadastrado com sucesso!");
+  } catch (err) {
+    console.log("Erro ao registrar veiculo: ", err.message, "\n");
   }
 }
 
-function pagarMulta() {
-  let valido = false;
-  while (valido === false) {
-    try {
-      console.log("----Pagamento de Infração----");
-      let multa = requisicao.question("Id da multa que deseja pagar: ");
-      sistema.atualizarMulta(multa, "paga");
-      valido = true;
-    } catch (err) {
-      console.log("Erro ao pagar multa: ", err.message, "\n");
-    }
+function pagarMulta(Id) {
+  try {
+    console.log("----Pagamento de Infração----");
+    let multa = requisicao.question("Id da multa que deseja pagar: ");
+    sistema.atualizarMulta(multa, "paga", Id);
+    console.log("Multa paga com sucesso!");
+  } catch (err) {
+    console.log("Erro ao pagar multa: ", err.message, "\n");
   }
 }
-function recorrerMulta() {
-  let valido = false;
-  while (valido === false) {
-    try {
-      console.log("----Recorrência de Infração----");
-      let multa = requisicao.question("Id da multa que deseja recorrer: ");
-      sistema.atualizarMulta(multa, "recorrida");
-      valido = true;
-    } catch (err) {
-      console.log("Erro ao recorrer multa: ", err.message, "\n");
-    }
+
+function recorrerMulta(Id) {
+  try {
+    console.log("----Recorrência de Infração----");
+    let multa = requisicao.question("Id da multa que deseja recorrer: ");
+    sistema.atualizarMulta(multa, "recorrida", Id);
+    console.log("Multa recorrida com sucesso!");
+  } catch (err) {
+    console.log("Erro ao recorrer multa: ", err.message, "\n");
   }
 }
 
 function registrarInfração() {
-  let valido = false;
-  while (valido === false) {
-    try {
-      console.log("----Registro de Infração----");
-      let cliente = requisicao.question("Id do cliente: ");
-      let tipo = requisicao.question("tipo da infração: ");
-      let valor = requisicao.question("valor da infração: ");
-      let data = requisicao.question("data(DD-MM-AAAA): ");
-      sistema.addMulta(cliente, tipo, valor, data);
-      valido = true;
-    } catch (err) {
-      console.log("Erro ao registrar multa: ", err.message, "\n");
-    }
+  try {
+    console.log("----Registro de Infração----");
+    let cliente = requisicao.question("Id do cliente: ");
+    let tipo = requisicao.question("tipo da infração: ");
+    let valor = requisicao.question("valor da infração: ");
+    let data = requisicao.question("data(DD-MM-AAAA): ");
+    sistema.addMulta(cliente, tipo, valor, data);
+    console.log("Multa registrada com sucesso!");
+  } catch (err) {
+    console.log("Erro ao registrar multa: ", err.message, "\n");
   }
 }
 
 function atualizarInfração() {
-  let valido = false;
-  while (valido === false) {
-    try {
-      console.log("----Atualização de Infração----");
-      let multa = requisicao.question("Id da multa que deseja atualizar: ");
-      let valido2 = false;
-      while (valido2 === false) {
-        console.log(
-          "Digite o numero correspondente ao status da multa: \n" +
-            "    1)pendente\n" +
-            "    2)paga\n" +
-            "    3)cancelada\n" +
-            "    4)recorrida",
-        );
-        let escolha = Number(requisicao.question("opção: "));
-        var status;
-        switch (escolha) {
-          case 1:
-            status = "pendente";
-            valido2 = true;
-            break;
-          case 2:
-            status = "paga";
-            valido2 = true;
-            break;
-          case 3:
-            status = "cancelada";
-            valido2 = true;
-            break;
-          case 4:
-            status = "recorrida";
-            valido2 = true;
-            break;
-          default:
-            console.log("Opção Invalida, tente novamente!");
-        }
+  try {
+    console.log("----Atualização de Infração----");
+    let multa = requisicao.question("Id da multa que deseja atualizar: ");
+    let valido = false;
+    while (valido === false) {
+      console.log(
+        "Digite o numero correspondente ao status da multa: \n" +
+          "    1)pendente\n" +
+          "    2)paga\n" +
+          "    3)cancelada\n" +
+          "    4)recorrida",
+      );
+      let escolha = Number(requisicao.question("opção: "));
+      var status;
+      switch (escolha) {
+        case 1:
+          status = "pendente";
+          valido = true;
+          break;
+        case 2:
+          status = "paga";
+          valido = true;
+          break;
+        case 3:
+          status = "cancelada";
+          valido = true;
+          break;
+        case 4:
+          status = "recorrida";
+          valido = true;
+          break;
+        default:
+          console.log("Opção Invalida, tente novamente!");
       }
-      sistema.atualizarMulta(multa, status);
-      valido = true;
-    } catch (err) {
-      console.log("Erro ao atualizar multa:", err.message, "\n");
     }
+    sistema.atualizarMulta(multa, status);
+    console.log("Multa atualizada com sucesso!");
+  } catch (err) {
+    console.log("Erro ao atualizar multa:", err.message, "\n");
   }
 }

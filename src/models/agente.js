@@ -25,5 +25,9 @@ class Agente extends Usuario {
   get matricula() {
     return this._matricula;
   }
+
+  get id() {
+    return this._id;
+  }
 }
 module.exports = Agente;

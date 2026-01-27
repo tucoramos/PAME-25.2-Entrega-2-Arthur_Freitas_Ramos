@@ -87,9 +87,13 @@ class Sistema {
   }
 
   // Criação de Veículos / Multas
-  criarCarro(placa, modelo, marca, cor) {
+  criarCarro(cliente, placa, modelo, marca, cor) {
     //tenta criar o carro caso resulte em erro chama um erro com a msm msg
     try {
+      this._exigirId(cliente);
+      if (this.tipoId(cliente) !== "condutor") {
+        throw new Error("O ID informado não pertence a um condutor.");
+      }
       const id = this._gerarId("VEI", this.cntVeiculo);
 
       const veiculo = new Veiculo(id, placa, modelo, marca, cor);
@@ -137,12 +141,31 @@ class Sistema {
     }
   }
 
-  atualizarMulta(multaId, status) {
+  atualizarMulta(multaId, status, cliente = null) {
+    // checa se o cliente é o dono da multa
     // atualiza o status da multa caso resulte em erro chama um erro com a msm msg
     try {
       this._exigirId(multaId);
-      if (this.tipoId(multaId) !== "multa")
+      if (this.tipoId(multaId) !== "multa") {
         throw new Error("ID não é de multa.");
+      }
+      if (cliente === null) {
+        cliente = this._getRegistro(multaId).obj.idCliente;
+      }
+
+      this._exigirId(cliente);
+      if (this.tipoId(cliente) !== "condutor") {
+        throw new Error("ID não é de condutor.");
+      }
+
+      const ids = this.multasPorCondutor.get(cliente) ?? [];
+      if (ids.length === 0) {
+        throw new Error("Nenhuma infração registrada para este condutor.");
+      }
+
+      if (!this.multasPorCondutor.get(cliente).includes(multaId)) {
+        throw new Error("Multa não pertence ao condutor.");
+      }
 
       const { obj: multa } = this._getRegistro(multaId);
 
