@@ -1,5 +1,5 @@
 const requisicao = require("readline-sync");
-const Sistema = require("./models/sistema");
+const Sistema = require("./models/Sistema");
 
 let sistema = new Sistema();
 
@@ -52,6 +52,12 @@ while (sair === false) {
               err.message,
               "\n",
             );
+            let tentarNovamente = requisicao.question(
+              "Caso não queira tentar novamente digite 'n', qualquer outra coisa será identificada como sim: ",
+            );
+            if (tentarNovamente.toLowerCase() === "n") {
+              valido = true;
+            }
           }
         }
         break;
@@ -73,6 +79,12 @@ while (sair === false) {
             console.log("");
           } catch (err) {
             console.log("Erro ao criar condutor: ", err.message, "\n");
+            let tentarNovamente = requisicao.question(
+              "Caso não queira tentar novamente digite 'n', qualquer outra coisa será identificada como sim: ",
+            );
+            if (tentarNovamente.toLowerCase() === "n") {
+              valido = true;
+            }
           }
         }
         break;
@@ -111,18 +123,21 @@ function Logar(Id) {
       switch (escolha) {
         case 1:
           console.log(sistema.infoCondutor(Id));
+          requisicao.question("Digite qualquer coisa para continuar: ");
           break;
         case 2:
           editarCondutor(Id);
           break;
         case 3:
           console.log(sistema.infraCondutor(Id));
+          requisicao.question("Digite qualquer coisa para continuar: ");
           break;
         case 4:
           cadastrarVeiculo(Id);
           break;
         case 5:
           console.log(sistema.veiculosCondutor(Id));
+          requisicao.question("Digite qualquer coisa para continuar: ");
           excluirVeiculo(Id);
           break;
         case 6:
@@ -163,30 +178,35 @@ function Logar(Id) {
       switch (escolha) {
         case 1:
           console.log(sistema.infoAgente(Id));
+          requisicao.question("Digite qualquer coisa para continuar: ");
           break;
         case 2:
           editarAgente(Id);
           break;
         case 3:
           console.log(sistema.veiculosCadastrados());
+          requisicao.question("Digite qualquer coisa para continuar: ");
           break;
         case 4:
           BuscarVeiculoPorPlaca();
           break;
         case 5:
           console.log(sistema.motoristasCadastrados());
+          requisicao.question("Digite qualquer coisa para continuar: ");
           break;
         case 6:
           registrarInfração();
           break;
         case 7:
           console.log(sistema.multasCadastradas());
+          requisicao.question("Digite qualquer coisa para continuar: ");
           break;
         case 8:
           atualizarInfração();
           break;
         case 9:
           relatorioMultas();
+          requisicao.question("Digite qualquer coisa para continuar: ");
           break;
         case 10:
           console.log("Voltando para o menu principal...", "\n");
@@ -207,9 +227,13 @@ function editarCondutor(Id) {
         "2) CPF\n" +
         "3) Data de nascimento\n" +
         "4) Senha",
+      "5) Sair",
     );
-
     let mudança = Number(requisicao.question("O que deseja editar? "));
+    if (mudança === 5) {
+      console.log("Operação cancelada.");
+      return;
+    }
     let novo = requisicao.question("Novo valor: ");
     if (mudança >= 1 && mudança <= 4) {
       let possiveisMud = ["nome", "cpf", "nascimento", "senha"];
@@ -232,8 +256,13 @@ function editarAgente(Id) {
         "2) CPF\n" +
         "3) Número de matrícula\n" +
         "4) Senha",
+      "5) Sair",
     );
     let mudança = Number(requisicao.question("O que deseja editar? "));
+    if (mudança === 5) {
+      console.log("Operação cancelada.");
+      return;
+    }
     let novo = requisicao.question("Novo valor: ");
     let possiveisMud = ["nome", "cpf", "matricula", "senha"];
     mudança = possiveisMud[mudança - 1];

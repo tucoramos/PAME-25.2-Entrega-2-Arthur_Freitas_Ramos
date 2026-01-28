@@ -21,6 +21,7 @@ class Multa {
 
   set idCliente(v) {
     // validações específicas para ID de cliente.
+    if (v === "") throw new Error("ID do cliente vazio.");
     if (!v.startsWith("CON")) {
       throw new Error("ID do cliente deve começar com 'CON'.");
     }
@@ -29,20 +30,27 @@ class Multa {
 
   set tipo(v) {
     // Aqui é possível adicionar validações específicas para tipo de infração, se necessário!
+    if (v === "") throw new Error("Tipo de infração Vazio.");
     this._tipo = v;
   }
 
   set valor(v) {
+    // validações específicas para valor da infração.
+    if (v === "") throw new Error("Valor da infração vazio.");
     if (!this._isValor(v)) throw new Error("Valor inválido.");
     this._valor = v;
   }
 
   set data(v) {
+    // validações específicas para data da infração.
+    if (v === "") throw new Error("Data vazia.");
     if (!this._isDate(v)) throw new Error("Data inválida.");
     this._data = v;
   }
 
   set status(v) {
+    // validações específicas para status da infração.
+    if (v === "") throw new Error("Status vazio.");
     if (!this._statusValido(v)) throw new Error("Status inválido.");
     if (this._status === v) return;
     if (
@@ -134,6 +142,23 @@ class Multa {
     }
 
     return true;
+  }
+
+  // Strings pro console
+  infoResumo() {
+    // Retorna uma string resumida com os detalhes da multa
+    return (
+      "ID: " +
+      this.id +
+      " | Tipo: " +
+      this.tipo +
+      " | Valor: " +
+      this.valor +
+      " | Data: " +
+      this.data +
+      " | Status: " +
+      this.status
+    );
   }
 }
 

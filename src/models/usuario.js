@@ -16,20 +16,27 @@ class Usuario {
 
   set nome(valor) {
     // Aqui é possível adicionar validações específicas para nome, se necessário!
+    if (valor === "") throw new Error("Nome vazio.");
     this._nome = valor;
   }
 
   set cpf(valor) {
+    // Validações específicas para CPF.
+    if (valor === "") throw new Error("CPF vazio.");
     if (!this._isCpf(valor)) throw new Error("CPF inválido.");
     this._cpf = valor;
   }
 
   set email(valor) {
+    // Validações específicas para email.
+    if (valor === "") throw new Error("Email vazio.");
     if (!this._isEmail(valor)) throw new Error("Email inválido.");
     this._email = valor;
   }
 
   set senha(valor) {
+    // Validações específicas para senha.
+    if (valor === "") throw new Error("Senha vazia.");
     if (!this._isSenha(valor))
       throw new Error(
         "Senha inválida, ela deve ter no minimo 8 caracteres, sem espaços, com pelo menos uma letra maiúscula, um número e uma caractere especial.",

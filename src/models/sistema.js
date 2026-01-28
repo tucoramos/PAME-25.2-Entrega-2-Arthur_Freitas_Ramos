@@ -1,8 +1,8 @@
 // models/sistema.js
-const Veiculo = require("./veiculo");
-const Multa = require("./multa");
-const Agente = require("./agente");
-const Condutor = require("./condutor");
+const Veiculo = require("./Veiculo");
+const Multa = require("./Multa");
+const Agente = require("./Agente");
+const Condutor = require("./Condutor");
 
 class Sistema {
   constructor() {
@@ -11,6 +11,10 @@ class Sistema {
 
     // email
     this.mapLogin = new Map(); // email -> { senha, id }
+
+    // cpf
+    this.cpfsCondutores = []; // lista de cpfs cadastrados de condutores
+    this.cpfsAgentes = []; // lista de cpfs cadastrados de agentes
 
     // condutor
     this.multasPorCondutor = new Map(); // idCondutor -> [idMulta]
@@ -103,6 +107,9 @@ class Sistema {
     try {
       if (this.mapLogin.has(email)) throw new Error("Email já cadastrado.");
       const id = this._gerarId("AGT", this.cntAgente);
+      if (this.cpfsAgentes.includes(cpf)) {
+        throw new Error("CPF já cadastrado como agente.");
+      }
 
       const agente = new Agente(id, nome, cpf, email, senha, matr);
 
@@ -110,6 +117,7 @@ class Sistema {
       this.mapLogin.set(email, { senha, id });
       this.idsAgentes.push(id);
       this.cntAgente++;
+      this.cpfsAgentes.push(cpf);
 
       return id;
     } catch (err) {
@@ -123,6 +131,9 @@ class Sistema {
     try {
       if (this.mapLogin.has(email)) throw new Error("Email já cadastrado.");
       const id = this._gerarId("CON", this.cntCondutor);
+      if (this.cpfsCondutores.includes(cpf)) {
+        throw new Error("CPF já cadastrado como condutor.");
+      }
 
       const condutor = new Condutor(id, nome, cpf, nascimento, email, senha);
 
@@ -132,6 +143,7 @@ class Sistema {
       this.multasPorCondutor.set(id, []);
       this.veiculosPorCondutor.set(id, []);
       this.cntCondutor++;
+      this.cpfsCondutores.push(cpf);
 
       return id;
     } catch (err) {
@@ -147,25 +159,8 @@ class Sistema {
       }
       const { obj: condutor } = this._getRegistro(id);
 
-      switch (mudança) {
-        case "nome":
-          condutor.nome = novoValor;
-          break;
-        case "cpf":
-          condutor.cpf = novoValor;
-          break;
-        case "nascimento":
-          condutor.nascimento = novoValor;
-          break;
-        case "email":
-          throw new Error("Nao é possível alterar o email.");
-          break;
-        case "senha":
-          condutor.senha = novoValor;
-          break;
-        default:
-          throw new Error("Campo nao existente para edição.");
-      }
+      condutor.mudar(mudança, novoValor);
+
       return true;
     } catch (err) {
       throw new Error(err.message);
@@ -180,25 +175,8 @@ class Sistema {
       }
       const { obj: agente } = this._getRegistro(id);
 
-      switch (mudança) {
-        case "nome":
-          agente.nome = novoValor;
-          break;
-        case "cpf":
-          agente.cpf = novoValor;
-          break;
-        case "matricula":
-          agente.matricula = novoValor;
-          break;
-        case "email":
-          throw new Error("Nao é possível alterar o email.");
-          break;
-        case "senha":
-          agente.senha = novoValor;
-          break;
-        default:
-          throw new Error("Campo nao existente para edição.");
-      }
+      agente.mudar(mudança, novoValor);
+
       return true;
     } catch (err) {
       throw new Error(err.message);
@@ -381,14 +359,7 @@ class Sistema {
       if (this.tipoId(Id) !== "agente") throw new Error("ID não é de agente.");
       const { obj: a } = this._getRegistro(Id);
 
-      return (
-        "--- PERFIL AGENTE ---\n" +
-        `ID: ${a.id}\n` +
-        `Nome: ${a.nome}\n` +
-        `CPF: ${a.cpf}\n` +
-        `Email: ${a.email}\n` +
-        `Matrícula: ${a.matricula}\n`
-      );
+      return a.info();
     } catch (err) {
       throw new Error(err.message);
     }
@@ -401,15 +372,7 @@ class Sistema {
         throw new Error("ID não é de condutor.");
       const { obj: c } = this._getRegistro(Id);
 
-      return (
-        "--- PERFIL CONDUTOR ---\n" +
-        `ID: ${c.id}\n` +
-        `Nome: ${c.nome}\n` +
-        `CPF: ${c.cpf}\n` +
-        `Nascimento: ${c.nascimento}\n` +
-        `Email: ${c.email}\n` +
-        `Veículos: ${this.veiculosCondutor(Id)}\n`
-      );
+      return c.info() + `Veículos: ${this.veiculosCondutor(Id)}\n`;
     } catch (err) {
       throw new Error(err.message);
     }
@@ -429,18 +392,7 @@ class Sistema {
       for (let i = 0; i < ids.length; i++) {
         const idM = ids[i];
         const { obj: m } = this._getRegistro(idM);
-        linhas.push(
-          "ID: " +
-            m.id +
-            " | Tipo: " +
-            m.tipo +
-            " | Valor: " +
-            m.valor +
-            " | Data: " +
-            m.data +
-            " | Status: " +
-            m.status,
-        );
+        linhas.push(m.infoResumo());
       }
 
       return (
@@ -460,18 +412,7 @@ class Sistema {
       for (let i = 0; i < this.idsVeiculos.length; i++) {
         const idV = this.idsVeiculos[i];
         const { obj: v } = this._getRegistro(idV);
-        linhas.push(
-          "ID: " +
-            v.id +
-            " | Placa: " +
-            v.placa +
-            " | Modelo: " +
-            v.modelo +
-            " | Marca: " +
-            v.marca +
-            " | Cor: " +
-            v.cor,
-        );
+        linhas.push(v.infoResumo());
       }
 
       return (
@@ -496,21 +437,9 @@ class Sistema {
       for (let i = 0; i < ids.length; i++) {
         const idV = ids[i];
         const { obj: v } = this._getRegistro(idV);
-        linhas.push(
-          "ID: " +
-            v.id +
-            " | Placa: " +
-            v.placa +
-            " | Modelo: " +
-            v.modelo +
-            " | Marca: " +
-            v.marca +
-            " | Cor: " +
-            v.cor +
-            "\n",
-        );
+        linhas.push(v.infoResumo());
       }
-      return linhas.join("");
+      return linhas.join("\n");
     } catch (err) {
       throw new Error(err.message);
     }
@@ -524,14 +453,7 @@ class Sistema {
       }
       const id = this.veiculoPorPlaca.get(placa);
       const { obj: v } = this._getRegistro(id);
-      return (
-        "--- VEÍCULO ENCONTRADO ---\n" +
-        `ID: ${v.id}` +
-        ` | Placa: ${v.placa}` +
-        ` | Modelo: ${v.modelo}` +
-        ` | Marca: ${v.marca}` +
-        ` | Cor: ${v.cor}\n`
-      );
+      return v.info();
     } catch (err) {
       throw new Error(err.message);
     }
@@ -546,16 +468,7 @@ class Sistema {
       for (let i = 0; i < this.idsCondutores.length; i++) {
         const idC = this.idsCondutores[i];
         const { obj: c } = this._getRegistro(idC);
-        linhas.push(
-          "ID: " +
-            c.id +
-            " | Nome: " +
-            c.nome +
-            " | CPF: " +
-            c.cpf +
-            " | Email: " +
-            c.email,
-        );
+        linhas.push(c.infoResumo());
       }
 
       return (
@@ -576,20 +489,7 @@ class Sistema {
       for (let i = 0; i < this.idsMultas.length; i++) {
         const idM = this.idsMultas[i];
         const { obj: m } = this._getRegistro(idM);
-        linhas.push(
-          "ID: " +
-            m.id +
-            " | Condutor: " +
-            m.idCliente +
-            " | Tipo: " +
-            m.tipo +
-            " | Valor: " +
-            m.valor +
-            " | Data: " +
-            m.data +
-            " | Status: " +
-            m.status,
-        );
+        linhas.push(m.infoResumo());
       }
 
       return (
@@ -617,20 +517,7 @@ class Sistema {
           this._valorData(m.data) >= this._valorData(inicio) &&
           this._valorData(m.data) <= this._valorData(fim)
         ) {
-          linhas.push(
-            "ID: " +
-              m.id +
-              " | Condutor: " +
-              m.idCliente +
-              " | Tipo: " +
-              m.tipo +
-              " | Valor: " +
-              m.valor +
-              " | Data: " +
-              m.data +
-              " | Status: " +
-              m.status,
-          );
+          linhas.push(m.infoResumo());
           if (m.status === "paga") {
             valorTotal += Number(m.valor);
           }

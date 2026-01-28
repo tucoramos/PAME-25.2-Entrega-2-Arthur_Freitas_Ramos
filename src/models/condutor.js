@@ -1,4 +1,4 @@
-const Usuario = require("./usuario");
+const Usuario = require("./Usuario");
 
 class Condutor extends Usuario {
   // Constructor
@@ -9,16 +9,41 @@ class Condutor extends Usuario {
 
   // Setters
   set nascimento(valor) {
+    // validações específicas para data de nascimento.
+    if (valor === "") throw new Error("Data de nascimento vazia.");
     if (!this._isDate(valor)) throw new Error("Data de nascimento inválida.");
     this._nascimento = valor;
   }
 
   set id(valor) {
     // validações específicas para ID de Condutor.
+    if (valor === "") throw new Error("ID de condutor vazio.");
     if (!valor.startsWith("CON")) {
       throw new Error("ID de condutor deve começar com 'CON'.");
     }
     this._id = valor;
+  }
+
+  mudar(mudança, novoValor) {
+    switch (mudança) {
+      case "nome":
+        this.nome = novoValor;
+        break;
+      case "cpf":
+        this.cpf = novoValor;
+        break;
+      case "nascimento":
+        this.nascimento = novoValor;
+        break;
+      case "email":
+        throw new Error("Não é possível alterar o email.");
+        break;
+      case "senha":
+        this.senha = novoValor;
+        break;
+      default:
+        throw new Error("Campo não existente para edição.");
+    }
   }
 
   // Getters
@@ -71,6 +96,24 @@ class Condutor extends Usuario {
     }
 
     return true;
+  }
+
+  // Strings pro console
+  info() {
+    // Retorna uma string formatada com os detalhes do condutor
+    return (
+      "--- PERFIL CONDUTOR ---\n" +
+      `ID: ${this.id}\n` +
+      `Nome: ${this.nome}\n` +
+      `CPF: ${this.cpf}\n` +
+      `Email: ${this.email}\n` +
+      `Nascimento: ${this.nascimento}\n`
+    );
+  }
+
+  infoResumo() {
+    // Retorna uma string resumida com os detalhes do condutor
+    return `ID: ${this.id} | Nome: ${this.nome} | CPF: ${this.cpf} | Nascimento: ${this.nascimento}`;
   }
 }
 
