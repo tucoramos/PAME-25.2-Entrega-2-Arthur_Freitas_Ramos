@@ -27,18 +27,27 @@ class Condutor extends Usuario {
   mudar(mudança, novoValor) {
     switch (mudança) {
       case "nome":
+        if (novoValor === this.nome)
+          throw new Error("Novo nome igual ao atual.");
         this.nome = novoValor;
         break;
       case "cpf":
+        if (novoValor === this.cpf) throw new Error("Novo CPF igual ao atual.");
         this.cpf = novoValor;
         break;
       case "nascimento":
+        if (novoValor === this.nascimento)
+          throw new Error("Nova data de nascimento igual à atual.");
         this.nascimento = novoValor;
         break;
       case "email":
+        if (novoValor === this.email)
+          throw new Error("Novo email igual ao atual.");
         throw new Error("Não é possível alterar o email.");
         break;
       case "senha":
+        if (novoValor === this.senha)
+          throw new Error("Nova senha igual à atual.");
         this.senha = novoValor;
         break;
       default:

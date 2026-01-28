@@ -32,7 +32,7 @@ while (sair === false) {
       );
       let tipo = requisicao.question("Digite a letra correspondente: ");
       console.log("");
-      if (tipo === "A") {
+      if (tipo.toLowerCase() === "a") {
         let valido = false;
         while (valido === false) {
           try {
@@ -61,7 +61,7 @@ while (sair === false) {
           }
         }
         break;
-      } else if (tipo === "C") {
+      } else if (tipo.toLowerCase() === "c") {
         let valido = false;
         while (valido === false) {
           try {
@@ -226,8 +226,8 @@ function editarCondutor(Id) {
         "1) Nome\n" +
         "2) CPF\n" +
         "3) Data de nascimento\n" +
-        "4) Senha",
-      "5) Sair",
+        "4) Senha\n" +
+        "5) Sair",
     );
     let mudança = Number(requisicao.question("O que deseja editar? "));
     if (mudança === 5) {
@@ -255,8 +255,8 @@ function editarAgente(Id) {
         "1) Nome\n" +
         "2) CPF\n" +
         "3) Número de matrícula\n" +
-        "4) Senha",
-      "5) Sair",
+        "4) Senha\n" +
+        "5) Sair",
     );
     let mudança = Number(requisicao.question("O que deseja editar? "));
     if (mudança === 5) {
@@ -264,10 +264,14 @@ function editarAgente(Id) {
       return;
     }
     let novo = requisicao.question("Novo valor: ");
-    let possiveisMud = ["nome", "cpf", "matricula", "senha"];
-    mudança = possiveisMud[mudança - 1];
-    sistema.editarAgente(Id, mudança, novo);
-    console.log("Agente de trânsito editado com sucesso!");
+    if (mudança >= 1 && mudança <= 4) {
+      let possiveisMud = ["nome", "cpf", "matricula", "senha"];
+      mudança = possiveisMud[mudança - 1];
+      sistema.editarAgente(Id, mudança, novo);
+      console.log("Agente de trânsito editado com sucesso!");
+    } else {
+      console.log("Opção inválida.");
+    }
   } catch (err) {
     console.log("Erro ao editar agente de trânsito: ", err.message, "\n");
   }
@@ -321,6 +325,7 @@ function BuscarVeiculoPorPlaca() {
     console.log("----Busca de Veículo por Placa----");
     let placa = requisicao.question("Digite a placa do veículo: ");
     console.log(sistema.buscarVeiculoPorPlaca(placa));
+    requisicao.question("Digite qualquer coisa para continuar: ");
   } catch (err) {
     console.log("Erro ao buscar veículo: ", err.message, "\n");
   }

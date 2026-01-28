@@ -117,7 +117,7 @@ class Sistema {
       this.mapLogin.set(email, { senha, id });
       this.idsAgentes.push(id);
       this.cntAgente++;
-      this.cpfsAgentes.push(cpf);
+      this.cpfsAgentes.push(cpf.replace(/\D/g, "")); // armazena apenas números, impede cpf duplos por formatação
 
       return id;
     } catch (err) {
@@ -143,7 +143,7 @@ class Sistema {
       this.multasPorCondutor.set(id, []);
       this.veiculosPorCondutor.set(id, []);
       this.cntCondutor++;
-      this.cpfsCondutores.push(cpf);
+      this.cpfsCondutores.push(cpf.replace(/\D/g, "")); // armazena apenas números, impede cpf duplos por formatação
 
       return id;
     } catch (err) {
@@ -159,7 +159,32 @@ class Sistema {
       }
       const { obj: condutor } = this._getRegistro(id);
 
+      if (mudança === "cpf") {
+        var cpfVelho = condutor.cpf.replace(/\D/g, ""); // salva o cpf antigo para atualizar a lista depois
+        // checa se o novo cpf ja existe no sistema
+        if (this.cpfsCondutores.includes(novoValor.replace(/\D/g, ""))) {
+          // se for o mesmo cpf do proprio condutor da erro de igualdade
+          if (novoValor.replace(/\D/g, "") === cpfVelho) {
+            throw new Error("Novo CPF igual ao atual.");
+          }
+          // se for cpf de outro condutor da erro de cpf ja cadastrado
+          throw new Error("CPF já cadastrado como condutor.");
+        }
+      }
+
       condutor.mudar(mudança, novoValor);
+
+      if (mudança === "cpf") {
+        this.cpfsCondutores = this.cpfsCondutores.filter(
+          (cpf) => cpf !== cpfVelho,
+        ); // remove o cpf antigo da lista
+        this.cpfsCondutores.push(condutor.cpf.replace(/\D/g, "")); // adiciona o novo cpf na lista
+      }
+
+      if (mudança === "senha") {
+        const email = condutor.email;
+        this.mapLogin.set(email, { senha: novoValor, id }); // atualiza a senha no map de login
+      }
 
       return true;
     } catch (err) {
@@ -175,7 +200,30 @@ class Sistema {
       }
       const { obj: agente } = this._getRegistro(id);
 
+      if (mudança === "cpf") {
+        var cpfVelho = agente.cpf.replace(/\D/g, ""); // salva o cpf antigo para atualizar a lista depois
+        // checa se o novo cpf ja existe no sistema
+        if (this.cpfsAgentes.includes(novoValor.replace(/\D/g, ""))) {
+          // se for o mesmo cpf do proprio agente da erro de igualdade
+          if (novoValor.replace(/\D/g, "") === cpfVelho) {
+            throw new Error("Novo CPF igual ao atual.");
+          }
+          // se for cpf de outro agente da erro de cpf ja cadastrado
+          throw new Error("CPF já cadastrado como agente.");
+        }
+      }
+
       agente.mudar(mudança, novoValor);
+
+      if (mudança === "cpf") {
+        this.cpfsAgentes = this.cpfsAgentes.filter((cpf) => cpf !== cpfVelho); // remove o cpf antigo da lista
+        this.cpfsAgentes.push(agente.cpf.replace(/\D/g, "")); // adiciona o novo cpf na lista
+      }
+
+      if (mudança === "senha") {
+        const email = agente.email;
+        this.mapLogin.set(email, { senha: novoValor, id }); // atualiza a senha no map de login
+      }
 
       return true;
     } catch (err) {
@@ -520,8 +568,10 @@ class Sistema {
           linhas.push(m.infoResumo());
           if (m.status === "paga") {
             valorTotal += Number(m.valor);
+            valorCobrado += Number(m.valor);
+          } else if (m.status === "pendente") {
+            valorCobrado += Number(m.valor);
           }
-          valorCobrado += Number(m.valor);
         }
       }
 
