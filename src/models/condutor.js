@@ -124,6 +124,19 @@ class Condutor extends Usuario {
     // Retorna uma string resumida com os detalhes do condutor
     return `ID: ${this.id} | Nome: ${this.nome} | CPF: ${this.cpf} | Nascimento: ${this.nascimento}`;
   }
+
+  // JSON
+  // converte o condutor para um objeto JSON
+  toJson() {
+    return {
+      id: this.id,
+      nome: this.nome,
+      cpf: this.cpf,
+      nascimento: this.nascimento,
+      email: this.email,
+      senha: this.senha,
+    };
+  }
 }
 
 module.exports = Condutor;

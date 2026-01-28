@@ -1,11 +1,12 @@
 class Veiculo {
   // Constructor
-  constructor(id, placa, modelo, marca, cor) {
+  constructor(id, placa, modelo, marca, cor, idDono) {
     this.id = id;
     this.placa = placa;
     this.modelo = modelo;
     this.marca = marca;
     this.cor = cor;
+    this.idDono = idDono;
   }
 
   // Setters
@@ -41,6 +42,14 @@ class Veiculo {
     if (valor === "") throw new Error("Cor vazia.");
     this._cor = valor;
   }
+  set idDono(valor) {
+    // validações específicas para ID do dono.
+    if (valor === "") throw new Error("ID do dono vazio.");
+    if (!valor.startsWith("CON")) {
+      throw new Error("ID nao pertence a condutor.");
+    }
+    this._idDono = valor;
+  }
 
   // Getters
   get id() {
@@ -57,6 +66,9 @@ class Veiculo {
   }
   get cor() {
     return this._cor;
+  }
+  get idDono() {
+    return this._idDono;
   }
 
   // Validações auxiliares
@@ -94,6 +106,19 @@ class Veiculo {
       " | Cor: " +
       this.cor
     );
+  }
+
+  // JSON
+  // converte o veículo para um objeto JSON
+  toJson() {
+    return {
+      id: this.id,
+      placa: this.placa,
+      modelo: this.modelo,
+      marca: this.marca,
+      cor: this.cor,
+      idDono: this.idDono,
+    };
   }
 }
 module.exports = Veiculo;

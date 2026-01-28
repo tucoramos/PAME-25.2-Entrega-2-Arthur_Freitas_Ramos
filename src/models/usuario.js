@@ -89,6 +89,9 @@ class Usuario {
     // remove tudo que não for número
     cpf = cpf.replace(/\D/g, "");
 
+    // checa se todos os dígitos são iguais
+    if (/^(\d)\1+$/.test(cpf)) return false;
+
     // tem que ter 11 dígitos
     if (cpf.length !== 11) return false;
 

@@ -3,9 +3,12 @@ const Veiculo = require("./Veiculo");
 const Multa = require("./Multa");
 const Agente = require("./Agente");
 const Condutor = require("./Condutor");
+const { loadDB, saveDB } = require("./storage/db");
 
 class Sistema {
   constructor() {
+    this.db = loadDB(); // carrega o banco de dados
+
     // map principal de IDs
     this.mapIds = new Map(); // id -> { tipo, obj }
 
@@ -34,6 +37,59 @@ class Sistema {
     this.cntCondutor = 1;
     this.cntMulta = 1;
     this.cntVeiculo = 1;
+
+    this.load(); // carrega os dados do banco de dados
+  }
+
+  // Load e Save do JSON
+  load() {
+    // carrega os dados do banco de dados
+    for (const c of thisdb.condutores) {
+      this.criarCondutor(c.nome, c.cpf, c.nascimento, c.email, c.senha, c.id);
+    }
+    for (const a of db.agentes) {
+      this.criarAgente(a.nome, a.cpf, a.matricula, a.email, a.senha, a.id);
+    }
+    for (const v of db.veiculos) {
+      this.criarCarro(v.idDono, v.placa, v.modelo, v.marca, v.cor, v.id);
+    }
+    for (const m of db.multas) {
+      this.addMulta(m.idCliente, m.tipo, m.valor, m.data, m.status, m.id);
+    }
+
+    // corrige os contadores de IDs
+    max = Math.max(...idsAgentes.map((id) => Number(id.split("-")[1])), 0);
+    this.cntAgente = max + 1;
+    max = Math.max(...idsCondutores.map((id) => Number(id.split("-")[1])), 0);
+    this.cntCondutor = max + 1;
+    max = Math.max(...idsVeiculos.map((id) => Number(id.split("-")[1])), 0);
+    this.cntVeiculo = max + 1;
+    max = Math.max(...idsMultas.map((id) => Number(id.split("-")[1])), 0);
+    this.cntMulta = max + 1;
+  }
+
+  save() {
+    // salva os dados no banco de dados
+    const data = {
+      agentes: [],
+      condutores: [],
+      veiculos: [],
+      multas: [],
+    };
+
+    for (const { tipo, obj } of this.mapIds.values()) {
+      if (tipo === "agente") {
+        data.agentes.push(obj.toJson());
+      } else if (tipo === "condutor") {
+        data.condutores.push(obj.toJson());
+      } else if (tipo === "veiculo") {
+        data.veiculos.push(obj.toJson());
+      } else if (tipo === "multa") {
+        data.multas.push(obj.toJSON());
+      }
+    }
+
+    saveDB(data);
   }
 
   // Helpers
@@ -101,13 +157,19 @@ class Sistema {
   }
 
   // Criação de usuários
-  criarAgente(nome, cpf, matr, email, senha) {
+  criarAgente(nome, cpf, matr, email, senha, idAgente = null) {
     //gera um id para o agente tenta criar o agente caso resulte em erro chama um erro com a msm msg
     //caso nao resulte em erro add 1 ao num de agente, adiciona ele no dicionario de Ids e no de email/senha
+    let id;
     try {
+      if (idAgente === null) {
+        id = this._gerarId("AGT", this.cntAgente);
+      } else {
+        id = idAgente;
+      }
+
       if (this.mapLogin.has(email)) throw new Error("Email já cadastrado.");
-      const id = this._gerarId("AGT", this.cntAgente);
-      if (this.cpfsAgentes.includes(cpf)) {
+      if (this.cpfsAgentes.includes(cpf.replace(/\D/g, ""))) {
         throw new Error("CPF já cadastrado como agente.");
       }
 
@@ -125,15 +187,20 @@ class Sistema {
     }
   }
 
-  criarCondutor(nome, cpf, nascimento, email, senha) {
+  criarCondutor(nome, cpf, nascimento, email, senha, idCondutor = null) {
     //gera um id para o condutor tenta criar o condutor caso resulte em erro chama um erro com a msm msg
     //caso nao resulte em erro add 1 ao num de condutor, adiciona ele no dicionario de Ids e no de email/senha
+    let id;
     try {
-      if (this.mapLogin.has(email)) throw new Error("Email já cadastrado.");
-      const id = this._gerarId("CON", this.cntCondutor);
-      if (this.cpfsCondutores.includes(cpf)) {
+      if (idCondutor === null) {
+        id = this._gerarId("CON", this.cntCondutor);
+      } else {
+        id = idCondutor;
+      }
+      if (this.cpfsCondutores.includes(cpf.replace(/\D/g, ""))) {
         throw new Error("CPF já cadastrado como condutor.");
       }
+      if (this.mapLogin.has(email)) throw new Error("Email já cadastrado.");
 
       const condutor = new Condutor(id, nome, cpf, nascimento, email, senha);
 
@@ -232,20 +299,25 @@ class Sistema {
   }
 
   // Criação de Veículos / Multas
-  criarCarro(cliente, placa, modelo, marca, cor) {
+  criarCarro(cliente, placa, modelo, marca, cor, idCarro = null) {
     //tenta criar o carro caso resulte em erro chama um erro com a msm msg
+    let id;
     try {
+      if (idCarro === null) {
+        id = this._gerarId("VEI", this.cntVeiculo);
+      } else {
+        id = idCarro;
+      }
+
       this._exigirId(cliente);
       if (this.tipoId(cliente) !== "condutor") {
         throw new Error("O ID informado não pertence a um condutor.");
       }
-      const id = this._gerarId("VEI", this.cntVeiculo);
-
       if (this.veiculoPorPlaca.has(placa)) {
         throw new Error("Placa já cadastrada no sistema.");
       }
 
-      const veiculo = new Veiculo(id, placa, modelo, marca, cor);
+      const veiculo = new Veiculo(id, placa, modelo, marca, cor, cliente);
 
       this.mapIds.set(id, { tipo: "veiculo", obj: veiculo });
       this.idsVeiculos.push(id);
@@ -310,17 +382,22 @@ class Sistema {
     }
   }
 
-  addMulta(cliente, tipo, valor, data, status = "pendente") {
+  addMulta(cliente, tipo, valor, data, status = "pendente", idMulta = null) {
     // checa se o id do cliente é de condutor
     // gera um id para a multa tenta criar ela caso resulte em erro chama um erro com a msm msg
     // caso nao resulte em erro add 1 ao num de multas, adiciona ela no dicionario de Ids e no do condutor
+    let id;
     try {
+      if (idMulta === null) {
+        id = this._gerarId("MUL", this.cntMulta);
+      } else {
+        id = idMulta;
+      }
+
       this._exigirId(cliente);
       if (this.tipoId(cliente) !== "condutor") {
         throw new Error("O ID informado não pertence a um condutor.");
       }
-
-      const id = this._gerarId("MUL", this.cntMulta);
 
       const multa = new Multa(id, cliente, tipo, valor, data, status);
 
@@ -568,10 +645,8 @@ class Sistema {
           linhas.push(m.infoResumo());
           if (m.status === "paga") {
             valorTotal += Number(m.valor);
-            valorCobrado += Number(m.valor);
-          } else if (m.status === "pendente") {
-            valorCobrado += Number(m.valor);
           }
+          valorCobrado += Number(m.valor);
         }
       }
 

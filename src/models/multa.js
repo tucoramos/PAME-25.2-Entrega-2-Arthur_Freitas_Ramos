@@ -160,6 +160,19 @@ class Multa {
       this.status
     );
   }
+
+  // JSON
+  // converte a multa para um objeto JSON
+  toJSON() {
+    return {
+      id: this.id,
+      idCliente: this.idCliente,
+      tipo: this.tipo,
+      valor: this.valor,
+      data: this.data,
+      status: this.status,
+    };
+  }
 }
 
 module.exports = Multa;

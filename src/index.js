@@ -93,7 +93,9 @@ while (sair === false) {
       }
     }
   } else if (escolha == 3) {
-    break;
+    sistema.save();
+    console.log("Saindo do sistema...");
+    sair = true;
   } else {
     console.log("Numero Invalido, tente novamente.", "\n");
   }
@@ -234,8 +236,8 @@ function editarCondutor(Id) {
       console.log("Operação cancelada.");
       return;
     }
-    let novo = requisicao.question("Novo valor: ");
     if (mudança >= 1 && mudança <= 4) {
+      let novo = requisicao.question("Novo valor: ");
       let possiveisMud = ["nome", "cpf", "nascimento", "senha"];
       mudança = possiveisMud[mudança - 1];
       sistema.editarCondutor(Id, mudança, novo);
@@ -263,8 +265,8 @@ function editarAgente(Id) {
       console.log("Operação cancelada.");
       return;
     }
-    let novo = requisicao.question("Novo valor: ");
     if (mudança >= 1 && mudança <= 4) {
+      let novo = requisicao.question("Novo valor: ");
       let possiveisMud = ["nome", "cpf", "matricula", "senha"];
       mudança = possiveisMud[mudança - 1];
       sistema.editarAgente(Id, mudança, novo);

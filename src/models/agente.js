@@ -66,5 +66,18 @@ class Agente extends Usuario {
       `Matrícula: ${this.matricula}\n`
     );
   }
+
+  // JSON
+  // converte o agente para um objeto JSON
+  toJson() {
+    return {
+      id: this.id,
+      nome: this.nome,
+      cpf: this.cpf,
+      email: this.email,
+      senha: this.senha,
+      matricula: this.matricula,
+    };
+  }
 }
 module.exports = Agente;
