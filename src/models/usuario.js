@@ -23,7 +23,7 @@ class Usuario {
   set cpf(valor) {
     // Validações específicas para CPF.
     if (valor === "") throw new Error("CPF vazio.");
-    if (!this._isCpf(valor)) throw new Error("CPF inválido.");
+    if (!this._isCpf(valor)) throw new Error("CPF inválido." + this.id);
     this._cpf = valor;
   }
 

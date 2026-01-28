@@ -3,7 +3,7 @@ const Veiculo = require("./Veiculo");
 const Multa = require("./Multa");
 const Agente = require("./Agente");
 const Condutor = require("./Condutor");
-const { loadDB, saveDB } = require("./storage/db");
+const { loadDB, saveDB } = require("../storage/db");
 
 class Sistema {
   constructor() {
@@ -44,27 +44,34 @@ class Sistema {
   // Load e Save do JSON
   load() {
     // carrega os dados do banco de dados
-    for (const c of thisdb.condutores) {
+    for (const c of this.db.condutores) {
       this.criarCondutor(c.nome, c.cpf, c.nascimento, c.email, c.senha, c.id);
     }
-    for (const a of db.agentes) {
+    for (const a of this.db.agentes) {
       this.criarAgente(a.nome, a.cpf, a.matricula, a.email, a.senha, a.id);
     }
-    for (const v of db.veiculos) {
+    for (const v of this.db.veiculos) {
       this.criarCarro(v.idDono, v.placa, v.modelo, v.marca, v.cor, v.id);
     }
-    for (const m of db.multas) {
+    for (const m of this.db.multas) {
       this.addMulta(m.idCliente, m.tipo, m.valor, m.data, m.status, m.id);
     }
 
     // corrige os contadores de IDs
-    max = Math.max(...idsAgentes.map((id) => Number(id.split("-")[1])), 0);
+    let max;
+    max = Math.max(...this.idsAgentes.map((id) => Number(id.split("-")[1])), 0);
     this.cntAgente = max + 1;
-    max = Math.max(...idsCondutores.map((id) => Number(id.split("-")[1])), 0);
+    max = Math.max(
+      ...this.idsCondutores.map((id) => Number(id.split("-")[1])),
+      0,
+    );
     this.cntCondutor = max + 1;
-    max = Math.max(...idsVeiculos.map((id) => Number(id.split("-")[1])), 0);
+    max = Math.max(
+      ...this.idsVeiculos.map((id) => Number(id.split("-")[1])),
+      0,
+    );
     this.cntVeiculo = max + 1;
-    max = Math.max(...idsMultas.map((id) => Number(id.split("-")[1])), 0);
+    max = Math.max(...this.idsMultas.map((id) => Number(id.split("-")[1])), 0);
     this.cntMulta = max + 1;
   }
 

@@ -1,6 +1,194 @@
 {
-  "condutores": [],
-  "agentes": [],
-  "veiculos": [],
-  "multas": []
+  "agentes": [
+    {
+      "id": "AGT-1",
+      "nome": "Arthur",
+      "cpf": "111.444.777-35",
+      "email": "arthur@agente.com",
+      "senha": "Arthur@1",
+      "matricula": "MAT-001"
+    },
+    {
+      "id": "AGT-2",
+      "nome": "Marina",
+      "cpf": "168.995.350-09",
+      "email": "marina@agente.com",
+      "senha": "Marina@2",
+      "matricula": "MAT-002"
+    }
+  ],
+  "condutores": [
+    {
+      "id": "CON-1",
+      "nome": "Joao",
+      "cpf": "123.456.789-09",
+      "nascimento": "10-02-2000",
+      "email": "joao@gmail.com",
+      "senha": "Joao@123"
+    },
+    {
+      "id": "CON-2",
+      "nome": "Lucas",
+      "cpf": "529.982.247-25",
+      "nascimento": "22-07-1998",
+      "email": "lucas@gmail.com",
+      "senha": "Lucas@123"
+    },
+    {
+      "id": "CON-3",
+      "nome": "Mariana",
+      "cpf": "746.824.890-70",
+      "nascimento": "15-11-1995",
+      "email": "mariana@gmail.com",
+      "senha": "Mariana@123"
+    },
+    {
+      "id": "CON-4",
+      "nome": "Pedro",
+      "cpf": "987.654.321-00",
+      "nascimento": "03-04-1990",
+      "email": "pedro@gmail.com",
+      "senha": "Pedro@123"
+    },
+    {
+      "id": "CON-5",
+      "nome": "Ana",
+      "cpf": "862.883.667-57",
+      "nascimento": "19-09-2001",
+      "email": "ana@gmail.com",
+      "senha": "Ana@1234"
+    }
+  ],
+  "veiculos": [
+    {
+      "id": "VEI-1",
+      "placa": "BRA1A23",
+      "modelo": "Civic",
+      "marca": "Honda",
+      "cor": "azul",
+      "idDono": "CON-1"
+    },
+    {
+      "id": "VEI-2",
+      "placa": "KQD7M48",
+      "modelo": "Corolla",
+      "marca": "Toyota",
+      "cor": "preto",
+      "idDono": "CON-2"
+    },
+    {
+      "id": "VEI-3",
+      "placa": "FTR3P90",
+      "modelo": "Onix",
+      "marca": "Chevrolet",
+      "cor": "branco",
+      "idDono": "CON-3"
+    },
+    {
+      "id": "VEI-4",
+      "placa": "LXM9E12",
+      "modelo": "HB20",
+      "marca": "Hyundai",
+      "cor": "prata",
+      "idDono": "CON-4"
+    },
+    {
+      "id": "VEI-5",
+      "placa": "VCR6D79",
+      "modelo": "Argo",
+      "marca": "Fiat",
+      "cor": "vermelho",
+      "idDono": "CON-5"
+    },
+    {
+      "id": "VEI-6",
+      "placa": "SPL0H65",
+      "modelo": "Compass",
+      "marca": "Jeep",
+      "cor": "cinza",
+      "idDono": "CON-1"
+    }
+  ],
+  "multas": [
+    {
+      "id": "MUL-1",
+      "idCliente": "CON-1",
+      "tipo": "Leve",
+      "valor": "88.38",
+      "data": "05-01-2024",
+      "status": "paga"
+    },
+    {
+      "id": "MUL-2",
+      "idCliente": "CON-1",
+      "tipo": "Grave",
+      "valor": "195.23",
+      "data": "18-02-2024",
+      "status": "pendente"
+    },
+    {
+      "id": "MUL-3",
+      "idCliente": "CON-2",
+      "tipo": "Média",
+      "valor": "130.16",
+      "data": "22-03-2024",
+      "status": "paga"
+    },
+    {
+      "id": "MUL-4",
+      "idCliente": "CON-2",
+      "tipo": "Gravíssima",
+      "valor": "293.47",
+      "data": "01-04-2024",
+      "status": "recorrida"
+    },
+    {
+      "id": "MUL-5",
+      "idCliente": "CON-3",
+      "tipo": "Leve",
+      "valor": "88.38",
+      "data": "12-04-2024",
+      "status": "paga"
+    },
+    {
+      "id": "MUL-6",
+      "idCliente": "CON-3",
+      "tipo": "Média",
+      "valor": "130.16",
+      "data": "25-05-2024",
+      "status": "pendente"
+    },
+    {
+      "id": "MUL-7",
+      "idCliente": "CON-4",
+      "tipo": "Grave",
+      "valor": "195.23",
+      "data": "30-05-2024",
+      "status": "paga"
+    },
+    {
+      "id": "MUL-8",
+      "idCliente": "CON-4",
+      "tipo": "Gravíssima",
+      "valor": "293.47",
+      "data": "10-06-2024",
+      "status": "cancelada"
+    },
+    {
+      "id": "MUL-9",
+      "idCliente": "CON-5",
+      "tipo": "Média",
+      "valor": "130.16",
+      "data": "15-06-2024",
+      "status": "pendente"
+    },
+    {
+      "id": "MUL-10",
+      "idCliente": "CON-5",
+      "tipo": "Leve",
+      "valor": "88.38",
+      "data": "20-06-2024",
+      "status": "paga"
+    }
+  ]
 }
